@@ -1,7 +1,7 @@
 using Codecool.DungeonCrawl.Logic.Actors;
 using Perlin.Display;
 
-namespace Codecool.DungeonCrawl.Logic.Map
+namespace Codecool.DungeonCrawl.Logic
 {
     /// <summary>
     ///     Represents a cell in the map.
@@ -16,12 +16,12 @@ namespace Codecool.DungeonCrawl.Logic.Map
         /// <summary>
         ///     Type of the cell
         /// </summary>
-        public TileType Type;
+        public CellType Type;
 
-        public Cell(int x, int y, DisplayObject parent, TileType type)
+        public Cell(int x, int y, DisplayObject parent, CellType type)
         {
             Type = type;
-            Sprite = new Sprite("tiles.png", false, TileSet.GetTile(Type));
+            Sprite = new Sprite("tiles.png", false, TileSet.GetCellTile(Type));
             Sprite.ScaleX = Sprite.ScaleY = TileSet.Scale;
 
             Position = (x, y);
@@ -32,27 +32,14 @@ namespace Codecool.DungeonCrawl.Logic.Map
 
         public Sprite Sprite { get; set; }
 
-        public (int x, int y) Position
+        public (float x, float y) Position
         {
-            get => _position;
+            get => (Sprite.X / TileSet.Size / TileSet.Scale, Sprite.Y / TileSet.Size / TileSet.Scale);
             set
             {
-                _position = value;
                 Sprite.X = value.x * TileSet.Size * TileSet.Scale;
                 Sprite.Y = value.y * TileSet.Size * TileSet.Scale;
             }
-        }
-
-        private (int x, int y) _position;
-
-        /// <summary>
-        ///     Executed whenever some Actor attempts to walk on this cell
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns>Whether the other Actor can walk on this cell</returns>
-        public bool OnCollision(Actor other)
-        {
-            return Type.IsPassable() && (Actor?.OnCollision(other) ?? true);
         }
 
         /// <summary>
@@ -61,15 +48,10 @@ namespace Codecool.DungeonCrawl.Logic.Map
         /// <param name="dx">X distance from this cell</param>
         /// <param name="dy">Y distance from this cell</param>
         /// <returns>The cell in the given distance</returns>
-        public Cell GetNeighbour(int dx, int dy)
+        public Cell GetNeighbor(int dx, int dy)
         {
-            return Program.Map[Position.x + dx, Position.y + dy];
-        }
-
-        public Cell GetNeighbour(Direction dir)
-        {
-            var (x, y) = dir.ToVector();
-            return GetNeighbour(x, y);
+            return null;
+            // return _gameMap.GetCell(X + dx, Y + dy);
         }
     }
 }

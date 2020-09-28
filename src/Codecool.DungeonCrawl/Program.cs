@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using Codecool.DungeonCrawl.Logic.Interfaces;
-using Codecool.DungeonCrawl.Logic.Map;
+﻿using Codecool.DungeonCrawl.Logic;
+using Codecool.DungeonCrawl.Logic.Actors;
 using Perlin;
 using Perlin.Display;
 
@@ -9,18 +8,17 @@ namespace Codecool.DungeonCrawl
     /// <summary>
     ///     The main class and entry point.
     /// </summary>
-    public static class Program
+    public class Program
     {
-        public static GameMap Map { get; private set; }
+		/// <summary>
+		///     Singleton instance of Program
+		/// </summary>
+        public static Program Instance;
 
-        public static readonly List<IUpdatable> AllUpdatables = new List<IUpdatable>();
+        private Cell[,] _map;
+        public Sprite MapContainer;
 
-        private static Sprite _mapContainer;
-
-        /// <summary>
-        ///     Entry point
-        /// </summary>
-        public static void Main()
+        private Program()
         {
             var (width, height) = MapLoader.GetMapDimensions();
 
@@ -30,7 +28,15 @@ namespace Codecool.DungeonCrawl
                 OnStart);
         }
 
-        private static void OnStart()
+        /// <summary>
+        ///     Entry point
+        /// </summary>
+        public static void Main()
+        {
+            Instance = new Program();
+        }
+
+        private void OnStart()
         {
             var stage = PerlinApp.Stage;
             stage.ScaleX = stage.ScaleY = TileSet.Scale;
@@ -50,21 +56,17 @@ namespace Codecool.DungeonCrawl
 
             stage.EnterFrameEvent += StageOnEnterFrameEvent;
 
-            _mapContainer = new Sprite();
-            _mapContainer.ScaleX = _mapContainer.ScaleY;
-            stage.AddChild(_mapContainer);
+            MapContainer = new Sprite();
+            MapContainer.ScaleX = MapContainer.ScaleY;
+            stage.AddChild(MapContainer);
 
-            Map = MapLoader.LoadMap(_mapContainer);
+            _map = MapLoader.LoadMap(MapContainer);
         }
 
-        /// <summary>
-        ///     Updates every frame (Full VSync by default)
-        /// </summary>
-        /// <param name="target"></param>
-        /// <param name="deltaTime"></param>
-        private static void StageOnEnterFrameEvent(DisplayObject target, float deltaTime)
+        // this gets called every frame
+        private void StageOnEnterFrameEvent(DisplayObject target, float elapsedtimesecs)
         {
-            AllUpdatables.ForEach(x => x.Update(deltaTime));
+            Actor.AllActors.ForEach(x => x.Update());
         }
     }
 }
